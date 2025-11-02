@@ -90,6 +90,38 @@ for(i in 2:6){
 save(trendar,mresiduals,fits,dates,file="./Results/resultstrendar1.Rdata")
 
 
+############# Discontinuous model AR(1) - cut in 2011
+# This analysis is for comparing with previous work on hiatus detection
+
+source('./MethodCode/PELTtrendARp.R') # replacement trendARp function
+trendar=list()
+mresiduals=list()
+fits=list()
+dates=list()
+
+for(i in 2:6){
+  data=Tanom_annual_df[,c(1,i)][!is.na(Tanom_annual_df[,i]),]
+  data = data[data$year<2011,]
+  n=nrow(data)
+  #Model fit
+  trendar[[i]]=PELT.trendARp(data[,2],p=1,pen=5*log(n),minseglen=10)
+  fittrend = fit.trendARp(data[,2],trendar[[i]],p=1,dates=data[,1],plot=T,add.ar=F,
+                          title=names(Tanom_annual_df)[i])# get fit without AR - to visualize trend segments
+  fits[[i]] = fittrend$fit
+  dates[[i]] = fittrend$dates
+  fittrendAR = fit.trendARp(data[,2],trendar[[i]],p=1,dates=data[,1],plot=T,add.ar=T,
+                            title=names(Tanom_annual_df)[i])#get fit with AR - to compute residuals
+  trendar[[i]]=data[trendar[[i]],1]  # put cpts in terms of year
+  cat(paste(names(Tanom_annual_df)[i],':TrendAR1 \n'))
+  print(fittrend$coeffs)
+  #Compute residuals
+  resid = data[,2] - fittrendAR$fit
+  mresiduals[[i]] = resid
+  FGstatdisc[4,i-1] = Weighted.Box.test(mresiduals[[i]],lag=LAG,type="Ljung",fitdf=1)$p.value
+}
+save(trendar,mresiduals,fits,dates,file="./Results/resultstrendar1_1850_2011.Rdata")
+
+
 
 ############ Discontinuous model with fixed AR(1)
 

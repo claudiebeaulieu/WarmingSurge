@@ -129,3 +129,14 @@ dev.off()
 
 ##### Code for figure 4 in Main and Figures S6-S10 is in VantageSimulation.R
 
+##### Not in the paper - discontinuous model when excluding data after 2011
+# Continuous and discontinuous fits with changing AR (Figure 1 Main)
+pdf("./Results/Fits_changingAR_1850_2010.pdf")
+#Discontinuous - changing AR(1)
+load("./Results/resultstrendar1_1850_2011.Rdata")
+matplot(Tanom_annual_df$year[Tanom_annual_df$year<2011],Tanom_annual_df[Tanom_annual_df$year<2011,index],type="l",col=cols,lwd=0.5,lty=1,xlab="Year",ylab="Anomaly (°C)",xlim=c(1850,2010))
+legend("topleft",legend=names,col=cols,lwd=2,cex=0.75)
+for (i in 1:4){
+  lines(dates[[index[i]]],fits[[index[i]]],col=cols[i],lwd=2)
+}
+dev.off()
